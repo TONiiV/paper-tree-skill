@@ -1,0 +1,54 @@
+[
+  {
+    "id": "eval-0",
+    "description": "Generate a diffusion models paper tree",
+    "prompt": "帮我画一个扩散模型（Diffusion Models）的论文发展树，从Score Matching的早期工作到最新的DALL-E 3和Stable Diffusion。",
+    "expectations": [
+      "Output file paper_tree_diffusion.html exists in /mnt/user-data/outputs/",
+      "HTML file is self-contained (no external script dependencies beyond Google Fonts and inline JS)",
+      "Contains at least 25 papers",
+      "Contains at least 5 column tracks",
+      "Has a Core Trunk column with the main DDPM/DDIM/Score lineage",
+      "Ho et al. 2020 DDPM paper is marked as star:true",
+      "At least one paper has sota:true badge",
+      "All paper URLs are real arXiv links (not placeholder XXX values)",
+      "The COLS array matches the number of visible column tracks in the header",
+      "The ROWS array correctly maps paper eras to year labels",
+      "Filter buttons in sidebar correspond to defined CATS categories",
+      "Drag-to-pan works (viewport mousedown handler present in JS)",
+      "Detail panel click handler is present and opens correctly",
+      "No two papers share the same (col, era) combination"
+    ]
+  },
+  {
+    "id": "eval-1",
+    "description": "Generate a reinforcement learning paper tree",
+    "prompt": "给我画一个强化学习（Reinforcement Learning）的论文树，从Q-Learning和Policy Gradient到PPO、SAC、AlphaGo、ChatGPT的RLHF。",
+    "expectations": [
+      "Output file paper_tree_rl.html exists in /mnt/user-data/outputs/",
+      "Contains at least 25 papers",
+      "Covers classical RL (Q-learning, REINFORCE), deep RL (DQN, A3C), and modern alignment (PPO, RLHF)",
+      "DQN (Mnih et al. 2015) is marked as star:true",
+      "PPO or RLHF paper is present",
+      "AlphaGo or AlphaZero is present",
+      "Timeline covers at least 1992 to 2022",
+      "Columns reflect thematic separation (e.g., Value-based, Policy-based, Model-based, Alignment)",
+      "All paper URLs point to real papers"
+    ]
+  },
+  {
+    "id": "eval-2",
+    "description": "Generate a narrow/focused paper tree for a specific model family",
+    "prompt": "画一个专注于BERT和它的后代模型（BERT family）的论文树，包括所有重要的BERT变体和微调技术。",
+    "expectations": [
+      "Output file paper_tree_bert.html or similar exists in /mnt/user-data/outputs/",
+      "Contains at least 15 papers",
+      "BERT (Devlin 2018) is present as the trunk paper",
+      "Includes variants like RoBERTa, ALBERT, DistilBERT, DeBERTa",
+      "Includes fine-tuning methods like LoRA, Adapter tuning, or Prompt tuning",
+      "Timeline is narrower (2018-2024)",
+      "star:true applied to BERT and at least 2-3 highly influential variants",
+      "Columns reflect meaningful distinctions (e.g., Architecture variants, Efficiency, Multilingual, Fine-tuning)"
+    ]
+  }
+]

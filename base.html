@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- FILL: update title to reflect your field -->
+<title>Paper Lineage — [FIELD NAME]</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+:root {
+  --bg:#0b0d12; --surface:#11141c; --surface2:#171b26;
+  --border:#1e2435; --border2:#28304a;
+  --text:#c8d0df; --muted:#4e5c7a; --dim:#2d3650;
+  --ax-bg:#0e1118; --ax-text:#d4deee; --ax-tick:#3a4668;
+  --header-h:52px; --sidebar-w:188px; --xaxis-h:50px; --yaxis-w:66px; --panel-w:400px;
+}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background-image:radial-gradient(rgba(70,110,200,0.05) 1px,transparent 1px);background-size:30px 30px;}
+
+/* Header */
+#header{position:fixed;top:0;left:0;right:0;height:var(--header-h);background:rgba(11,13,18,0.97);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);display:flex;align-items:center;z-index:100;}
+#header-logo{display:flex;align-items:center;padding:0 18px;width:var(--sidebar-w);border-right:1px solid var(--border);height:100%;flex-shrink:0;}
+.logo-text{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;color:var(--text);letter-spacing:.08em;}
+.logo-text em{color:var(--muted);font-style:normal;font-weight:300;}
+#header-meta{flex:1;padding:0 20px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);display:flex;align-items:center;gap:20px;}
+.hm-num{color:var(--ax-text);font-weight:500;} .hm-hint{color:var(--dim);}
+#header-legend{display:flex;align-items:center;gap:14px;padding:0 18px;border-left:1px solid var(--border);}
+.leg{display:flex;align-items:center;gap:5px;font-family:'IBM Plex Mono',monospace;font-size:9px;}
+.leg-dot{width:6px;height:6px;border-radius:50%;}
+
+/* Sidebar */
+#sidebar{position:fixed;top:var(--header-h);left:0;bottom:0;width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);z-index:80;padding:16px 0;overflow-y:auto;}
+.sb-sec{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);padding:0 14px 8px;}
+.sb-btn{display:flex;align-items:center;gap:8px;width:100%;padding:8px 14px;background:none;border:none;border-left:2px solid transparent;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);text-align:left;transition:all .14s;}
+.sb-btn:hover{color:var(--text);background:var(--surface2);}
+.sb-btn.on{color:var(--text);border-left-color:var(--c);background:rgba(255,255,255,.022);}
+.sb-dot{width:6px;height:6px;border-radius:50%;background:var(--c);flex-shrink:0;transition:box-shadow .14s;}
+.sb-btn.on .sb-dot{box-shadow:0 0 6px var(--c);}
+.sb-sep{height:1px;background:var(--border);margin:10px 14px;}
+
+/* Shell */
+#shell{position:fixed;top:var(--header-h);left:var(--sidebar-w);right:0;bottom:0;z-index:10;overflow:hidden;transition:right .28s cubic-bezier(.4,0,.2,1);}
+#shell.panel-open{right:var(--panel-w);}
+
+/* Axis corner */
+#axis-corner{position:absolute;top:0;left:0;width:var(--yaxis-w);height:var(--xaxis-h);background:var(--ax-bg);border-right:2px solid var(--ax-tick);border-bottom:2px solid var(--ax-tick);z-index:35;display:flex;align-items:flex-end;justify-content:flex-end;padding:5px 7px;}
+.corner-lbl{font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:.1em;}
+
+/* X axis */
+#xaxis{position:absolute;top:0;left:var(--yaxis-w);right:0;height:var(--xaxis-h);background:var(--ax-bg);border-bottom:2px solid var(--ax-tick);z-index:30;overflow:hidden;pointer-events:none;}
+.xa-col{position:absolute;top:0;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;}
+.xa-label{font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600;color:var(--ax-text);letter-spacing:.1em;text-transform:uppercase;white-space:nowrap;text-align:center;}
+.xa-sub{font-family:'IBM Plex Mono',monospace;font-size:7.5px;color:var(--muted);white-space:nowrap;text-align:center;line-height:1.3;}
+.xa-tick{position:absolute;bottom:0;width:1px;height:8px;background:var(--ax-tick);}
+
+/* Y axis */
+#yaxis{position:absolute;top:var(--xaxis-h);left:0;bottom:0;width:var(--yaxis-w);background:var(--ax-bg);border-right:2px solid var(--ax-tick);z-index:30;overflow:hidden;pointer-events:none;}
+.ya-row{position:absolute;right:0;display:flex;align-items:center;justify-content:flex-end;padding-right:9px;gap:5px;transform:translateY(-50%);}
+.ya-label{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:500;color:var(--ax-text);white-space:nowrap;}
+.ya-tick{width:8px;height:2px;background:var(--ax-tick);flex-shrink:0;}
+
+/* Viewport + canvas */
+#viewport{position:absolute;top:var(--xaxis-h);left:var(--yaxis-w);right:0;bottom:0;overflow:hidden;cursor:grab;}
+#viewport.dragging{cursor:grabbing;}
+#canvas{position:absolute;top:0;left:0;will-change:transform;}
+#svg{position:absolute;top:0;left:0;pointer-events:none;overflow:visible;}
+.grid-v{stroke:rgba(38,46,70,.45);stroke-width:1;stroke-dasharray:3,8;}
+.grid-h{stroke:rgba(38,46,70,.25);stroke-width:1;stroke-dasharray:2,10;}
+
+/* Nodes */
+.node{position:absolute;width:148px;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:9px 11px 8px 14px;cursor:pointer;transform:translate(-50%,-50%);transition:border-color .18s,box-shadow .18s,opacity .22s;user-select:none;}
+.node::before{content:'';position:absolute;left:0;top:4px;bottom:4px;width:3px;border-radius:3px;background:var(--c);}
+.node:hover{border-color:var(--c);box-shadow:0 0 0 1px var(--c),0 4px 20px rgba(0,0,0,.6);z-index:25!important;}
+.node.sel{border-color:var(--c);box-shadow:0 0 0 1px var(--c),0 0 14px var(--c);z-index:26!important;}
+.node.dim{opacity:.08;pointer-events:none;}
+.n-yr{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:2px;}
+.n-short{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:500;color:var(--c);line-height:1.25;margin-bottom:2px;}
+.n-venue{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--dim);}
+.node-badges{position:absolute;top:-9px;right:5px;display:flex;gap:4px;}
+.badge{font-family:'IBM Plex Mono',monospace;font-size:8px;font-weight:600;padding:1px 5px;border-radius:3px;line-height:14px;white-space:nowrap;letter-spacing:.04em;}
+.badge-star{background:#1e1a08;border:1px solid #c8900a;color:#e8b832;}
+.badge-sota{background:#0a1a12;border:1px solid #1a7a42;color:#3ec878;}
+@keyframes fadeUp{from{opacity:0;transform:translate(-50%,-50%) translateY(5px)}to{opacity:1;transform:translate(-50%,-50%) translateY(0)}}
+.node{animation:fadeUp .22s ease both;}
+
+/* Detail panel */
+#panel{position:fixed;top:var(--header-h);right:0;bottom:0;width:var(--panel-w);background:var(--surface);border-left:1px solid var(--border);z-index:90;transform:translateX(100%);overflow-y:auto;transition:transform .28s cubic-bezier(.4,0,.2,1);}
+#panel.open{transform:translateX(0);}
+#p-close{position:absolute;top:14px;right:16px;background:none;border:none;color:var(--muted);font-size:14px;cursor:pointer;z-index:1;font-family:'IBM Plex Mono',monospace;transition:color .12s;}
+#p-close:hover{color:var(--text);}
+#p-body{padding:22px 22px 60px;}
+.p-cat{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.15em;text-transform:uppercase;margin-bottom:5px;}
+.p-yr{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:5px;}
+.p-title{font-size:14px;font-weight:500;line-height:1.5;margin-bottom:14px;}
+.p-sep{height:1px;background:var(--border);margin:14px 0;}
+.p-lbl{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:7px;}
+.p-txt{font-size:12.5px;color:#8090a8;line-height:1.8;}
+.a-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:5px;}
+.a-dot{width:5px;height:5px;border-radius:50%;margin-top:5px;flex-shrink:0;}
+.a-name{font-size:12px;color:var(--text);font-weight:500;}
+.a-inst{font-size:11px;color:var(--muted);}
+.tags{display:flex;flex-wrap:wrap;gap:5px;}
+.tag{font-family:'IBM Plex Mono',monospace;font-size:9px;padding:3px 7px;border:1px solid var(--border2);border-radius:3px;color:var(--muted);}
+.p-badges{display:flex;gap:6px;margin-bottom:12px;}
+.pb{font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600;padding:3px 9px;border-radius:4px;}
+.pb-star{background:#1e1a08;border:1px solid #c8900a;color:#e8b832;}
+.pb-sota{background:#0a1a12;border:1px solid #1a7a42;color:#3ec878;}
+.p-link{display:flex;align-items:center;gap:7px;margin-top:4px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5b9cf6;text-decoration:none;padding:9px 12px;border:1px solid var(--border);border-radius:5px;transition:all .15s;width:100%;}
+.p-link:hover{border-color:#5b9cf6;background:rgba(91,156,246,.06);color:var(--text);}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+</style>
+</head>
+<body>
+
+<div id="header">
+  <div id="header-logo">
+    <!-- FILL: update subtitle -->
+    <div class="logo-text">Paper Lineage <em>/ [FIELD]</em></div>
+  </div>
+  <div id="header-meta">
+    <span><span class="hm-num" id="sn">0</span> shown / <span class="hm-num" id="st">0</span> total</span>
+    <span class="hm-hint">drag to pan · click node for details</span>
+  </div>
+  <div id="header-legend">
+    <div class="leg"><div class="leg-dot" style="background:#c8900a"></div><span style="color:#e8b832">★ Landmark</span></div>
+    <div class="leg"><div class="leg-dot" style="background:#1a7a42"></div><span style="color:#3ec878">SOTA</span></div>
+  </div>
+</div>
+
+<div id="sidebar"></div>
+
+<div id="shell">
+  <div id="axis-corner"><span class="corner-lbl">YEAR ↓</span></div>
+  <div id="xaxis"></div>
+  <div id="yaxis"></div>
+  <div id="viewport">
+    <div id="canvas"><svg id="svg"></svg></div>
+  </div>
+</div>
+
+<div id="panel">
+  <button id="p-close" onclick="closePanel()">✕</button>
+  <div id="p-body"></div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// CONFIGURATION — FILL IN THESE SECTIONS FOR YOUR FIELD
+// ═══════════════════════════════════════════════════════════════
+
+// Layout constants (adjust COL_W if you have many columns)
+const COL_W=178, NODE_W=148, NODE_H=58, PAD_T=30, PAD_L=24;
+
+// ── FILL: Column tracks (X-axis) ─────────────────────────────
+// Each column is a thematic research thread.
+// label: displayed in X-axis header (use \n for line break)
+// sub:   short description shown below label
+const COLS = [
+  // EXAMPLE — replace with your field's columns:
+  { label:'Column 1',  sub:'Description of what lives here' },
+  { label:'Column 2',  sub:'Description of what lives here' },
+  { label:'Core\nTrunk', sub:'Main lineage of foundational papers' },
+  { label:'Column 4',  sub:'Description of what lives here' },
+  { label:'Column 5',  sub:'Description of what lives here' },
+];
+
+// ── FILL: Timeline rows (Y-axis) ─────────────────────────────
+// Each row is a time period. y is pixel offset from top of canvas.
+// Start at y=40, use ~70-80px spacing between rows.
+const ROWS = [
+  // EXAMPLE — replace with your field's timeline:
+  { y:  40, label: '2015' },
+  { y: 115, label: '2016' },
+  { y: 190, label: '2017' },
+  { y: 265, label: '2018' },
+  { y: 340, label: '2019' },
+  { y: 415, label: '2020' },
+  { y: 490, label: '2021' },
+  { y: 565, label: '2022' },
+  { y: 640, label: '2023' },
+  { y: 715, label: '2024' },
+];
+
+// ── FILL: Category definitions ────────────────────────────────
+// id:    referenced by paper cat field
+// label: shown in sidebar filter
+// color: node accent color (use desaturated, readable hues)
+const CATS = [
+  // EXAMPLE — replace with your field's categories:
+  { id:'foundation', label:'Foundations',  color:'#5b9cf6' },
+  { id:'method',     label:'Methods',      color:'#a07ae8' },
+  { id:'training',   label:'Training',     color:'#e0a048' },
+  { id:'milestone',  label:'Milestones',   color:'#e06060' },
+  { id:'application',label:'Applications', color:'#52c2a0' },
+];
+
+// ── FILL: Papers ──────────────────────────────────────────────
+// col: index into COLS array (0-based)
+// era: index into ROWS array (0-based)
+// star: true = landmark paper (shown with ★ badge)
+// sota: true = was SOTA at time of publication (shown with SOTA badge)
+// desc: 2-4 sentence summary in Chinese (or English)
+const P = [
+  // EXAMPLE — replace with your field's papers:
+  {
+    id:'example2015',
+    cat:'foundation',
+    col:2,          // Core Trunk column
+    era:0,          // First row (2015)
+    star:true,
+    sota:false,
+    short:'Example Paper',
+    venue:'NeurIPS 2015',
+    title:'Full Title of the Paper',
+    authors:[
+      {n:'First Author',   i:'Institution Name'},
+      {n:'Second Author',  i:'Institution Name'},
+    ],
+    desc:'简短说明这篇论文的核心贡献是什么。它解决了什么问题？为什么重要？有什么影响？',
+    tags:['Key Concept','Method Name','Benchmark'],
+    url:'https://arxiv.org/abs/XXXX.XXXXX'
+  },
+  // Add all papers here...
+];
+
+// ── FILL: Edges (influence relationships) ────────────────────
+// ['source_paper_id', 'target_paper_id']
+// Draw an edge when paper B directly builds on / was inspired by paper A
+const E = [
+  // EXAMPLE:
+  // ['example2015', 'nextpaper2016'],
+];
+
+// ═══════════════════════════════════════════════════════════════
+// ENGINE — do not modify below this line
+// ═══════════════════════════════════════════════════════════════
+const catMap=Object.fromEntries(CATS.map(c=>[c.id,c]));
+function cc(id){return catMap[id]?.color||'#888';}
+function cx(c){return PAD_L+c*COL_W+COL_W/2;}
+function ry(e){return PAD_T+ROWS[e].y;}
+const CANVAS_W=PAD_L+COLS.length*COL_W+PAD_L;
+const CANVAS_H=PAD_T+Math.max(...ROWS.map(r=>r.y))+100;
+
+let filterCat='all', panX=0, panY=0, dragging=false, dx0=0, dy0=0, px0=0, py0=0, selId=null;
+
+// Build sidebar
+const sidebar=document.getElementById('sidebar');
+function mkBtn(id,c,label){
+  const b=document.createElement('button');
+  b.className='sb-btn';b.id='btn-'+id;b.style.setProperty('--c',c);
+  b.innerHTML=`<span class="sb-dot"></span>${label}`;
+  b.onclick=()=>setFilter(id); return b;
+}
+const allB=mkBtn('all','#4a5578','All Papers');allB.classList.add('on');sidebar.appendChild(allB);
+const s1=document.createElement('div');s1.className='sb-sep';sidebar.appendChild(s1);
+const l1=document.createElement('div');l1.className='sb-sec';l1.textContent='Filter Branch';sidebar.appendChild(l1);
+CATS.forEach(c=>sidebar.appendChild(mkBtn(c.id,c.color,c.label)));
+const s2=document.createElement('div');s2.className='sb-sep';sidebar.appendChild(s2);
+const l2=document.createElement('div');l2.className='sb-sec';l2.textContent='Show Only';sidebar.appendChild(l2);
+sidebar.appendChild(mkBtn('star','#e8b832','★ Landmark'));
+sidebar.appendChild(mkBtn('sota','#3ec878','SOTA Papers'));
+
+function setFilter(id){
+  filterCat=id;
+  document.querySelectorAll('.sb-btn').forEach(b=>b.classList.remove('on'));
+  document.getElementById('btn-'+id)?.classList.add('on');
+  closePanel();render();
+}
+
+function visibleSet(){
+  if(filterCat==='all') return new Set(P.map(p=>p.id));
+  let primary;
+  if(filterCat==='star') primary=new Set(P.filter(p=>p.star).map(p=>p.id));
+  else if(filterCat==='sota') primary=new Set(P.filter(p=>p.sota).map(p=>p.id));
+  else primary=new Set(P.filter(p=>p.cat===filterCat).map(p=>p.id));
+  const r=new Set(primary);
+  E.forEach(([a,b])=>{if(primary.has(a))r.add(b);if(primary.has(b))r.add(a);});
+  return r;
+}
+
+function clamp(px,py){
+  const vp=document.getElementById('viewport');
+  const W=vp.clientWidth,H=vp.clientHeight;
+  return[Math.max(Math.min(0,W-CANVAS_W),Math.min(0,px)),
+         Math.max(Math.min(0,H-CANVAS_H),Math.min(0,py))];
+}
+function applyPan(px,py){
+  [panX,panY]=clamp(px,py);
+  document.getElementById('canvas').style.transform=`translate(${panX}px,${panY}px)`;
+  updateAxes();
+}
+
+function buildAxes(){
+  const xa=document.getElementById('xaxis'),ya=document.getElementById('yaxis');
+  xa.innerHTML='';ya.innerHTML='';
+  COLS.forEach((col,i)=>{
+    const el=document.createElement('div');el.className='xa-col';el.dataset.col=i;
+    el.style.width=COL_W+'px';
+    const lines=col.label.split('\n');
+    el.innerHTML=`<div class="xa-label">${lines[0]}${lines[1]?'<br>'+lines[1]:''}</div><div class="xa-sub">${col.sub}</div>`;
+    const tick=document.createElement('div');tick.className='xa-tick';tick.style.left='50%';
+    el.appendChild(tick);xa.appendChild(el);
+  });
+  ROWS.forEach((row,i)=>{
+    const el=document.createElement('div');el.className='ya-row';el.dataset.row=i;
+    el.innerHTML=`<span class="ya-label">${row.label}</span><div class="ya-tick"></div>`;
+    ya.appendChild(el);
+  });
+  updateAxes();
+}
+
+function updateAxes(){
+  document.querySelectorAll('.xa-col').forEach(el=>{
+    const i=parseInt(el.dataset.col);
+    el.style.left=(PAD_L+i*COL_W+panX)+'px';
+  });
+  document.querySelectorAll('.ya-row').forEach(el=>{
+    const i=parseInt(el.dataset.row);
+    el.style.top=(PAD_T+ROWS[i].y+panY)+'px';
+  });
+}
+
+const canvas=document.getElementById('canvas'),svgEl=document.getElementById('svg');
+
+function render(){
+  [...canvas.children].forEach(el=>{if(el!==svgEl)el.remove();});
+  svgEl.innerHTML='';
+  canvas.style.width=CANVAS_W+'px';canvas.style.height=CANVAS_H+'px';
+  svgEl.style.width=CANVAS_W+'px';svgEl.style.height=CANVAS_H+'px';
+  svgEl.setAttribute('viewBox',`0 0 ${CANVAS_W} ${CANVAS_H}`);
+  const vis=visibleSet();
+  // Grid lines
+  COLS.forEach((_,i)=>{
+    const l=document.createElementNS('http://www.w3.org/2000/svg','line');
+    l.setAttribute('x1',cx(i));l.setAttribute('y1',0);l.setAttribute('x2',cx(i));l.setAttribute('y2',CANVAS_H);
+    l.setAttribute('class','grid-v');svgEl.appendChild(l);
+  });
+  ROWS.forEach((row,i)=>{
+    const l=document.createElementNS('http://www.w3.org/2000/svg','line');
+    const y=PAD_T+row.y;
+    l.setAttribute('x1',0);l.setAttribute('y1',y);l.setAttribute('x2',CANVAS_W);l.setAttribute('y2',y);
+    l.setAttribute('class','grid-h');svgEl.appendChild(l);
+  });
+  // Edges
+  E.forEach(([fid,tid])=>{
+    const fp=P.find(p=>p.id===fid),tp=P.find(p=>p.id===tid);
+    if(!fp||!tp||!vis.has(fid)||!vis.has(tid))return;
+    const x1=cx(fp.col),y1=ry(fp.era)+NODE_H/2+1;
+    const x2=cx(tp.col),y2=ry(tp.era)-NODE_H/2-2;
+    const dy=y2-y1;const b=Math.abs(x2-x1)>20?0.38:0.44;
+    const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d',`M${x1},${y1} C${x1},${y1+dy*b} ${x2},${y2-dy*b} ${x2},${y2}`);
+    path.setAttribute('fill','none');
+    path.setAttribute('stroke',cc(tp.cat));
+    path.setAttribute('stroke-width',tp.star?'1.8':'1.2');
+    path.setAttribute('opacity',tp.star?'0.3':'0.18');
+    svgEl.appendChild(path);
+    const arr=document.createElementNS('http://www.w3.org/2000/svg','polygon');
+    arr.setAttribute('points',`${x2-3.5},${y2-7} ${x2+3.5},${y2-7} ${x2},${y2-1}`);
+    arr.setAttribute('fill',cc(tp.cat));arr.setAttribute('opacity','0.4');
+    svgEl.appendChild(arr);
+  });
+  // Nodes
+  P.forEach((p,idx)=>{
+    const v=vis.has(p.id);const c=cc(p.cat);
+    const el=document.createElement('div');
+    el.className='node'+(!v?' dim':'')+(selId===p.id?' sel':'');
+    el.style.cssText=`left:${cx(p.col)}px;top:${ry(p.era)}px;--c:${c};z-index:${v?10:3};animation-delay:${idx*10}ms`;
+    el.dataset.id=p.id;
+    let badges='';
+    if(p.star)badges+=`<span class="badge badge-star">★</span>`;
+    if(p.sota)badges+=`<span class="badge badge-sota">SOTA</span>`;
+    el.innerHTML=`${badges?`<div class="node-badges">${badges}</div>`:''}<div class="n-yr">${ROWS[p.era].label}</div><div class="n-short">${p.short}</div><div class="n-venue">${p.venue}</div>`;
+    if(v)el.addEventListener('click',e=>{e.stopPropagation();openPanel(p.id);});
+    canvas.appendChild(el);
+  });
+  document.getElementById('sn').textContent=vis.size;
+  document.getElementById('st').textContent=P.length;
+}
+
+// Pan
+const vp=document.getElementById('viewport');
+vp.addEventListener('mousedown',e=>{
+  if(e.button!==0)return;
+  dragging=true;dx0=e.clientX;dy0=e.clientY;px0=panX;py0=panY;
+  vp.classList.add('dragging');e.preventDefault();
+});
+window.addEventListener('mousemove',e=>{if(!dragging)return;applyPan(px0+e.clientX-dx0,py0+e.clientY-dy0);});
+window.addEventListener('mouseup',()=>{dragging=false;vp.classList.remove('dragging');});
+vp.addEventListener('touchstart',e=>{const t=e.touches[0];dragging=true;dx0=t.clientX;dy0=t.clientY;px0=panX;py0=panY;},{passive:true});
+window.addEventListener('touchmove',e=>{if(!dragging)return;const t=e.touches[0];applyPan(px0+t.clientX-dx0,py0+t.clientY-dy0);},{passive:true});
+window.addEventListener('touchend',()=>{dragging=false;});
+
+function openPanel(id){
+  const p=P.find(x=>x.id===id);if(!p)return;
+  selId=id;const c=cc(p.cat);const cat=catMap[p.cat];
+  let bh='';if(p.star)bh+=`<span class="pb pb-star">★ Landmark Paper</span>`;if(p.sota)bh+=`<span class="pb pb-sota">SOTA</span>`;
+  document.getElementById('p-body').innerHTML=`
+    <div class="p-cat" style="color:${c}">${cat?.label||p.cat}</div>
+    <div class="p-yr">${ROWS[p.era].label}</div>
+    <div class="p-title">${p.title}</div>
+    ${bh?`<div class="p-badges">${bh}</div>`:''}
+    <div class="p-lbl">Authors & Institutions</div>
+    ${p.authors.map(a=>`<div class="a-row"><div class="a-dot" style="background:${c}"></div><div><div class="a-name">${a.n}</div><div class="a-inst">${a.i}</div></div></div>`).join('')}
+    <div class="p-sep"></div>
+    <div class="p-lbl">Overview</div>
+    <div class="p-txt">${p.desc}</div>
+    <div class="p-sep"></div>
+    <div class="p-lbl">Keywords</div>
+    <div class="tags">${p.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+    <div class="p-sep"></div>
+    <a class="p-link" href="${p.url}" target="_blank">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style="flex-shrink:0">
+        <path d="M2 10L10 2M10 2H5M10 2V7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>Open Paper / arXiv
+    </a>`;
+  document.getElementById('panel').classList.add('open');
+  document.getElementById('shell').classList.add('panel-open');
+  document.querySelectorAll('.node').forEach(el=>el.classList.toggle('sel',el.dataset.id===id));
+}
+function closePanel(){
+  selId=null;
+  document.getElementById('panel').classList.remove('open');
+  document.getElementById('shell').classList.remove('panel-open');
+  document.querySelectorAll('.node').forEach(el=>el.classList.remove('sel'));
+}
+
+buildAxes();render();applyPan(0,0);
+</script>
+</body>
+</html>
