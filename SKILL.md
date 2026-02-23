@@ -238,13 +238,18 @@ After generating, mentally walk through:
 
 ## Output
 
-Save the final file to `/mnt/user-data/outputs/paper_tree_[field].html`
+Save the final file to the **current project directory** (the user's working directory),
+or to a **user-specified path** if one was provided.
+
+Default filename: `paper_tree_[field].html`
 
 Where `[field]` is a short slug, e.g.:
 - `paper_tree_diffusion.html`
-- `paper_tree_rl.html`  
+- `paper_tree_rl.html`
 - `paper_tree_nlp.html`
 - `paper_tree_vla.html`
+
+If the user specifies a custom output path, use that instead.
 
 ---
 
