@@ -129,12 +129,12 @@ Use these for `CATS` color fields:
 ## Output File Naming
 
 ```
-paper_tree_diffusion.html     # Diffusion models
-paper_tree_rl.html            # Reinforcement learning  
-paper_tree_nlp.html           # NLP broad survey
-paper_tree_vla.html           # Vision-Language-Action
-paper_tree_cv.html            # Computer vision
-paper_tree_bert_family.html   # Focused: BERT variants
-paper_tree_gpt_family.html    # Focused: GPT series
-paper_tree_[field].html       # Your field here
+output/paper_tree_diffusion.html     # Diffusion models
+output/paper_tree_rl.html            # Reinforcement learning  
+output/paper_tree_nlp.html           # NLP broad survey
+output/paper_tree_vla.html           # Vision-Language-Action
+output/paper_tree_cv.html            # Computer vision
+output/paper_tree_bert_family.html   # Focused: BERT variants
+output/paper_tree_gpt_family.html    # Focused: GPT series
+output/paper_tree_[field].html       # Your field here
 ```

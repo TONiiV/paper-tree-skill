@@ -187,7 +187,7 @@ Edges represent **direct intellectual influence** — paper B builds on, extends
 
 ## Step 7 — Generate HTML
 
-Use the template in `templates/base.html`. Fill in these sections:
+Use the template in `skills/paper-tree/base.html`. Fill in these sections:
 
 ### Sections to fill
 1. **`COLS` array** — column definitions
@@ -225,6 +225,7 @@ CANVAS_H = PAD_T + max(ROWS[*].y) + 100
 
 After generating, mentally walk through:
 
+- [ ] Run `npm test` inside the project to verify that the generated HTML output matches criteria
 - [ ] Every column has ≥ 3 visible nodes in "All Papers" view
 - [ ] The Y-axis year labels align correctly with node positions
 - [ ] The X-axis column labels are readable (≤ 20 chars)
@@ -238,16 +239,15 @@ After generating, mentally walk through:
 
 ## Output
 
-Save the final file to the **current project directory** (the user's working directory),
-or to a **user-specified path** if one was provided.
+Save the final file to a user-specified path, or default to the `output/` directory in the current workspace (so it can be evaluated by tests if needed).
 
-Default filename: `paper_tree_[field].html`
+Default path: `output/paper_tree_[field].html`
 
 Where `[field]` is a short slug, e.g.:
-- `paper_tree_diffusion.html`
-- `paper_tree_rl.html`
-- `paper_tree_nlp.html`
-- `paper_tree_vla.html`
+- `output/paper_tree_diffusion.html`
+- `output/paper_tree_rl.html`
+- `output/paper_tree_nlp.html`
+- `output/paper_tree_vla.html`
 
 If the user specifies a custom output path, use that instead.
 
