@@ -253,7 +253,7 @@ function ry(e){return PAD_T+ROWS[e].y;}
 const CANVAS_W=PAD_L+COLS.length*COL_W+PAD_L;
 const CANVAS_H=PAD_T+Math.max(...ROWS.map(r=>r.y))+100;
 
-let filterCat='all', panX=0, panY=0, scale=1, dragging=false, dx0=0, dy0=0, px0=0, py0=0, selId=null, pinchDist0=0, pinchScale0=1;
+var filterCat='all', panX=0, panY=0, scale=1, dragging=false, dx0=0, dy0=0, px0=0, py0=0, selId=null, pinchDist0=0, pinchScale0=1;
 
 // Build sidebar
 const sidebar=document.getElementById('sidebar');

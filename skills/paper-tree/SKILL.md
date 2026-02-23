@@ -239,7 +239,7 @@ After generating, mentally walk through:
 
 ## Output
 
-Save the final file to a user-specified path, or default to the `output/` directory in the current workspace (so it can be evaluated by tests if needed).
+Save the final file to a user-specified path, or default to the `output/` directory in the current project directory (so it can be evaluated by tests if needed).
 
 Default path: `output/paper_tree_[field].html`
 

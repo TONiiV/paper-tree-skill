@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { JSDOM } = require('jsdom');
 
-const HTML_PATH = path.join(__dirname, '..', 'base.html');
+const HTML_PATH = path.join(__dirname, '..', 'skills', 'paper-tree', 'base.html');
 const html = fs.readFileSync(HTML_PATH, 'utf-8');
 
 // ---------------------------------------------------------------------------

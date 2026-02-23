@@ -3,10 +3,10 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const SKILL_PATH = path.join(__dirname, '..', 'SKILL.md');
+const SKILL_PATH = path.join(__dirname, '..', 'skills', 'paper-tree', 'SKILL.md');
 const skill = fs.readFileSync(SKILL_PATH, 'utf-8');
 
-const EVALS_PATH = path.join(__dirname, '..', 'evals.json');
+const EVALS_PATH = path.join(__dirname, 'evals.json');
 const evals = JSON.parse(fs.readFileSync(EVALS_PATH, 'utf-8'));
 
 // ===========================================================================
@@ -80,7 +80,7 @@ describe('SKILL.md required sections', () => {
 // SKILL.md + base.html Feature Consistency
 // ===========================================================================
 describe('SKILL.md describes current features', () => {
-  const baseHtml = fs.readFileSync(path.join(__dirname, '..', 'base.html'), 'utf-8');
+  const baseHtml = fs.readFileSync(path.join(__dirname, '..', 'skills', 'paper-tree', 'base.html'), 'utf-8');
 
   it('mentions drag-to-pan (which exists in base.html)', () => {
     assert.ok(skill.includes('drag-to-pan') || skill.includes('pan'), 'SKILL.md should mention panning');
